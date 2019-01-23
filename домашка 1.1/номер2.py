@@ -1,3 +1,4 @@
+#задание 2
 class Contact():
     contact_list = []
 
@@ -43,3 +44,14 @@ class Contact():
             if number == cont['phone_number']:
                 self.contact_list.pop(index)
             index += 1
+
+    #задание 3
+    def find_special(self):
+        for cont in self.contact_list:
+            if cont['special_contact'] == True:
+                self.contact_print()
+
+    def find_name(self, name, surname):
+        for cont in self.contact_list:
+            if cont['name'] == name and cont['surname'] == surname:
+                self.contact_print()
