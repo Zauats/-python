@@ -1,7 +1,7 @@
 import hashlib
 
 def string_hash_generator(file_path):
-    file = open(file_path, "r")
+    file = open(file_path, "rb")
     for line in file:
         hash_string = hashlib.md5(line)
         hash_string = hash_string.hexdigest()
