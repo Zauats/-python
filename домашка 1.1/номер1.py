@@ -1,3 +1,4 @@
+import sys
 
 
 def adv_print(*args, max_line=False, in_file=False, start='', sep=" ", end="\n", file=sys.stdout, flush=False):
