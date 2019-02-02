@@ -5,7 +5,6 @@ def adv_print(*args, max_line=False, in_file=False, start='', sep=" ", end="\n",
     all_str = start
     for item in args:
         all_str += str(item) + sep
-    print(all_str)
 
     if max_line == False:
         print(all_str, end=end, sep='', file=file, flush=flush)
