@@ -53,6 +53,8 @@ class EmailWork():
         mail.logout()
 
         return email_message
+    
+    
 if __name__ == '__main__':
     email_1 = EmailWork()
     email_1.send_message()
