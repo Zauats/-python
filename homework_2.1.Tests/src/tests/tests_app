@@ -11,10 +11,12 @@ class Mytests(unittest.TestCase):
 
     @unittest.skipIf('Тест запущен не в Windows', not ('win' in sys.platform))
     def test_path(self):
-        self.assertIn('C:\\', self.app.congig.config_path[1])
+        self.assertIn('C:\\', self.app.config.config_path[1])
 
     def test_log(self):
         self.assertEqual(str(self.app._log), '<Logger testapp (DEBUG)>')
-
+    
+    def test_path-type():
+        self.assertNotIsInstance(self.app.config.config_path, list)
 if __name__ == '__main__':
     unittest.main()
