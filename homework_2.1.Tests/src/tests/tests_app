@@ -1,0 +1,20 @@
+from src import app
+from helpers.config import Config
+import unittest, sys
+
+
+
+class Mytests(unittest.TestCase):
+    app = app.App()
+    def test_config_class(self):
+        self.assertIsInstance(self.app.config, Config)
+
+    @unittest.skipIf('Тест запущен не в Windows', not ('win' in sys.platform))
+    def test_path(self):
+        self.assertIn('C:\\', self.app.congig.config_path[1])
+
+    def test_log(self):
+        self.assertEqual(str(self.app._log), '<Logger testapp (DEBUG)>')
+
+if __name__ == '__main__':
+    unittest.main()
