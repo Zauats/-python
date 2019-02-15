@@ -32,17 +32,16 @@ for people in contacts_list[1:]:
     nice_contacts_list.append(people_list)
 
 contact_index = 0
+print(len(nice_contacts_list))
+new_contact_list = []
 for contact in nice_contacts_list:
     coincidence = False
-    contact_index2 = 0
     for people in nice_contacts_list:
         if (contact[0] == people[0] and contact[1] == people[1]) and not coincidence:
             coincidence = True
             continue
 
         if contact[0] == people[0] and contact[1] == people[1]:
-            nice_contacts_list.remove(contact)
-            nice_contacts_list.remove(people)
             item_index = 0
             new_contact = []
             for item in contact:
@@ -51,14 +50,14 @@ for contact in nice_contacts_list:
                 else:
                     new_contact.append(item)
                 item_index += 1
-            nice_contacts_list.remove(contact)
-            nice_contacts_list.remove(people)
-            nice_contacts_list.append(new_contact)
 
+            nice_contacts_list.remove(people)
+            nice_contacts_list.remove(contact)
+            new_contact_list.append(new_contact)
 
     coincidence = False
     contact_index += 1
-
+nice_contacts_list.extend(new_contact_list)
 pprint(nice_contacts_list)
 
 
@@ -71,5 +70,5 @@ pprint(nice_contacts_list)
 with open("phonebook.csv", "w") as f:
     datawriter = csv.writer(f, delimiter=',')
     # Вместо contacts_list подставьте свой список
-    datawriter.writerows(contacts_list)
+    datawriter.writerows(nice_contacts_list)
 
