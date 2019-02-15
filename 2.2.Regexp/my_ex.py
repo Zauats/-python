@@ -32,7 +32,6 @@ for people in contacts_list[1:]:
     nice_contacts_list.append(people_list)
 
 contact_index = 0
-print(len(nice_contacts_list))
 new_contact_list = []
 for contact in nice_contacts_list:
     coincidence = False
@@ -58,7 +57,7 @@ for contact in nice_contacts_list:
     coincidence = False
     contact_index += 1
 nice_contacts_list.extend(new_contact_list)
-pprint(nice_contacts_list)
+
 
 
 
