@@ -1,22 +1,35 @@
-from src import app
+import unittest
+import sys
+import re
+import os
+from app import App
 from helpers.config import Config
-import unittest, sys
-
 
 
 class Mytests(unittest.TestCase):
-    app = app.App()
+    app = App()
+
     def test_config_class(self):
         self.assertIsInstance(self.app.config, Config)
 
-    @unittest.skipIf('Тест запущен не в Windows', not ('win' in sys.platform))
-    def test_path(self):
-        self.assertIn('C:\\', self.app.config.config_path[1])
+    @unittest.skipIf(not ('win' in sys.platform), 'Тест запущен не в Windows')
+    def test_path(self): # проверка на принадлежность к диску C
+        self.assertIn('C:\\', self.app.config.config_paths[1])
 
-    def test_log(self):
-        self.assertEqual(str(self.app._log), '<Logger testapp (DEBUG)>')
-    
-    def test_path-type():
-        self.assertNotIsInstance(self.app.config.config_path, list)
+    def test_init_env_config_path(self): # проверяю, что в списке действительно лежат пути и что функция возвращает список
+        func_result = self.app.config.init_env_config_path()
+        self.assertIsInstance(func_result, list)
+        for item in func_result[1:]:
+            num_of_matches = len(re.findall('[A-Z]{1}:\\\\\w*', func_result[1]))
+            self.assertGreater(num_of_matches, 0)
+
+    def test_get_windows_system_disk(self): # проверяю, что функция возвращает то, что нужно
+        self.assertEqual(os.getenv("SystemDrive"), self.app.config.get_windows_system_disk())
+
+    def test_get_verbosity_level(self): # проверка, что функция возвращает не число и она упадет,
+                                        # если я буду обращаться с ее выводом, как с числом
+        self.assertIsInstance(self.app.config.get_verbosity_level(), int)
+
+
 if __name__ == '__main__':
     unittest.main()
