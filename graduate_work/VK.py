@@ -148,10 +148,10 @@ class User():
         return search_sex
 
 if __name__ == '__main__':
-    # login = input("Ввеите логин")
-    # password = input("Введите пароль: ")
-    # id = int(input("Введите свой id"))
-    user = User('+79653417551', 'zxcvbnm12.', 187509567)
+    login = input("Ввеите логин")
+    password = input("Введите пароль: ")
+    id = int(input("Введите свой id"))
+    user = User(login, password, id)
     main = Main(user)
     peoples = main.search_peoples(user)
     peoples = main.add_compatibility_points(user, peoples)
