@@ -151,7 +151,7 @@ if __name__ == '__main__':
     login = input("Ввеите логин")
     password = input("Введите пароль: ")
     id = int(input("Введите свой id"))
-    user = User(login, password, id)
+    user = User(login, password, id)    # в прошлый раз зыбыл убрать)
     main = Main(user)
     peoples = main.search_peoples(user)
     peoples = main.add_compatibility_points(user, peoples)
