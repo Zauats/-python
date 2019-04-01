@@ -101,7 +101,7 @@ class Main():
 
 
 class User():
-
+    # создает пользователя, с которым можно продолжать дальнейшую работу
     def __init__(self, login, password, id):
         vk_session = vk_api.VkApi(login, password)
         vk_session.auth(token_only=True)
