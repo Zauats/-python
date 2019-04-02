@@ -3,13 +3,13 @@ import unittest
 
 class UserTests(unittest.TestCase):
 
-    def setUp(self):
+    def setUp(self): # Есть ли метод, который выполняется только один раз в начале? Немного погуглил и не нашел
         print("Для проведения тестов, требуется авторизация в вконтакте")
-        # login = input("Введите логин: ")
-        # password = input("Введите пароль: ")
-        # id = int(input("Введите id: "))
+        login = input("Введите логин: ")
+        password = input("Введите пароль: ")
+        id = int(input("Введите id: "))
 
-        self.user = User('+79653417551', 'zxcvbnm12.', 187509567)
+        self.user = User(login, password, id)
 
     def test_id(self):
         self.assertEqual(self.user.user['id'], self.user.id,)
