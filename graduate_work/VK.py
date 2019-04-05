@@ -148,17 +148,17 @@ class User():
 if __name__ == '__main__':
     conn = sqlite3.connect("VkDataBase.db")
     cursor = conn.cursor()
-    cursor.execute("""CREATE TABLE VK_peoplesfvfv
+    cursor.execute("""CREATE TABLE VK_peoplesf
                       (page text, photo1 text, photo2 text,
                        photo3 text)
                    """)
     conn.commit()
 
 
-    # login = input("Ввеите логин")
-    # password = input("Введите пароль: ")
-    # id = int(input("Введите свой id"))
-    user = User('+79653417551', 'zxcvbnm12.', 187509567)
+    login = input("Ввеите логин")
+    password = input("Введите пароль: ")
+    id = int(input("Введите свой id"))
+    user = User(login, password, id)
     main = Main(user)
     peoples = main.search_peoples(user)
     peoples = main.add_compatibility_points(user, peoples)
@@ -172,6 +172,7 @@ if __name__ == '__main__':
             top_peoples.append((f"https://vk.com/id{people['id']}", photos[0]["photo"], photos[1]["photo"], photos[2]["photo"]))
 
         cursor.executemany("INSERT INTO albums VALUES (?,?,?,?)", top_peoples)
+        conn.commit()
         start_people += 10
         end_people += 10
         print('данные переданы в базу данных')
