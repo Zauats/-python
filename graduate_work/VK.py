@@ -71,8 +71,7 @@ class Main():
     def search_peoples(self, user):
         # возвращает список всех возможных людей, которые мне подходят
         people_list = list() # множество со всеми людьми. Повторов там не будет
-        i = 0
-        for group in user.user['groups']:
+        for i, group in enumerate(user.user['groups']):
             # запрашиваем список людей, которые подходят по начальным параметрам и находятся в определенной группе groups
             peoples = user.vk.users.search(count=1000, fields=['about', 'activities', 'books', 'common_count',
                                                                   'domain', 'games', 'home_town', 'interest', 'movies', 'music', 'personal',
@@ -82,7 +81,6 @@ class Main():
                                            has_photo=1, group_id=group['id'])['items']
 
             people_list.extend(peoples)
-            i+=1
             print(i)
         peoples = [el for el, _ in groupby(people_list)] # убирем повторы. Хотел сделать с множествами, но они не поддерживают словари
         return peoples # возвращаем список
@@ -101,13 +99,12 @@ class Main():
 
 
 class User():
-    # создает пользователя, с которым можно продолжать дальнейшую работу
+
     def __init__(self, login, password, id):
         vk_session = vk_api.VkApi(login, password)
         vk_session.auth(token_only=True)
         self.vk = vk_session.get_api()
         self.id = id
-
         self.user = self.vk.users.get(user_ids=id, fields=['about', 'activities', 'bdate', 'books', 'common_count', 'country', 'city',
                                                               'domain''games', 'home_town', 'interest', 'movies', 'music', 'personal',
                                                               'photo_max_orig', 'quotes', 'sex', 'status', 'tv'])[0]
@@ -148,17 +145,17 @@ class User():
         return search_sex
 
 if __name__ == '__main__':
-    login = input("Ввеите логин")
-    password = input("Введите пароль: ")
-    id = int(input("Введите свой id"))
-    user = User(login, password, id)    # в прошлый раз зыбыл убрать)
+    # login = input("Ввеите логин")
+    # password = input("Введите пароль: ")
+    # id = int(input("Введите свой id"))
+    user = User('+79653417551', 'zxcvbnm12.', 187509567)
     main = Main(user)
     peoples = main.search_peoples(user)
     peoples = main.add_compatibility_points(user, peoples)
     peoples.reverse()
+    start_people = 0
+    end_people = 10
     while True:
-        start_people = 0
-        end_people = 10
         top_peoples = []
         for people in peoples[start_people:end_people]:
             top_peoples.append({
