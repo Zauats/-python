@@ -3,6 +3,7 @@ from pprint import pprint
 import json
 import re
 from itertools import groupby
+import sqlite3
 
 class Main():
     """Класс создает объект, через который можо обращаться к vk_api. Так же собирает данные о пользователе
@@ -86,13 +87,12 @@ class Main():
         return peoples # возвращаем список
 
     def get_top3_photo(self, people, user):
-        photos = user.vk.photos.getAll(ownet_id=187509567, count=200, extended=1)['items']
+        photos = user.vk.photos.getAll(ownet_id=people['id'], count=200, extended=1)['items']
         top_photos = []
         photos.sort(key=lambda photos: photos['likes']['count'])
 
         for photo in photos[-3:]:
-            top_photos.append({'id': photo['id'],
-                               'photo': photo['sizes'][-1],
+            top_photos.append({'photo': photo['sizes'][-1]['url'],
                                'likes': photo['likes']['count']})
         return top_photos
 
@@ -111,6 +111,7 @@ class User():
         self.user['age'] = self.get_age(self.user)
         self.user['groups'] = self.get_groups(self.user)
         self.user['search_sex'] = self.get_seatch_sex(self.user)
+
 
     def get_age(self, user):
         if not isinstance(user, dict):
@@ -145,6 +146,15 @@ class User():
         return search_sex
 
 if __name__ == '__main__':
+    conn = sqlite3.connect("VkDataBase.db")
+    cursor = conn.cursor()
+    cursor.execute("""CREATE TABLE VK_peoplesfvfv
+                      (page text, photo1 text, photo2 text,
+                       photo3 text)
+                   """)
+    conn.commit()
+
+
     # login = input("Ввеите логин")
     # password = input("Введите пароль: ")
     # id = int(input("Введите свой id"))
@@ -158,15 +168,12 @@ if __name__ == '__main__':
     while True:
         top_peoples = []
         for people in peoples[start_people:end_people]:
-            top_peoples.append({
-                'page': f"https://vk.com/id{people['id']}",
-                'photos': main.get_top3_photo(people, user)
-            })
+            photos = main.get_top3_photo(people, user)
+            top_peoples.append((f"https://vk.com/id{people['id']}", photos[0]["photo"], photos[1]["photo"], photos[2]["photo"]))
 
-        with open('total_file.json', 'w', encoding="UTF-8") as f:
-            json.dump(top_peoples, f)
+        cursor.executemany("INSERT INTO albums VALUES (?,?,?,?)", top_peoples)
         start_people += 10
         end_people += 10
-        print('Файл создан')
+        print('данные переданы в базу данных')
         if input('Хотите найти еще людей? Для продолжения нажмите Enter, для завершения введите "end": ') == 'end':
             break
