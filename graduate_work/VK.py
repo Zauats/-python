@@ -1,11 +1,11 @@
+
 import vk_api
-from pprint import pprint
-import json
 import re
 from itertools import groupby
 import sqlite3
 
-class Main():
+
+class Main:
     """Класс создает объект, через который можо обращаться к vk_api. Так же собирает данные о пользователе
     при помощи функции get_user, которая описана ниже"""
 
@@ -14,11 +14,10 @@ class Main():
             raise TypeError("user должен быть типа User")
         self.user = user
 
-
     def add_compatibility_points(self, user, peoples):
         # все возможные параметры для сравнивания:
         all_params = ['about', 'activities', 'books', 'games', 'movies', 'music', 'quotes', 'status', 'tv',
-                      'common_count', 'personal', ]
+                      'common_count', 'personal',]
         # параметры, которые есть в поле personal:
         personal = ['political', 'people_main', 'life_main', 'smoking', 'alcohol', 'religion']
 
@@ -29,18 +28,20 @@ class Main():
             if param in user.user:
                 params.append(param)
 
-        """в этом цикле в словаре с информацией о ползователе добавляется поле compatibility. Это очки совпадения
-                       1 общий друг - балл, 1 слово из описания страницы совпадает - 0.2 балла, 
-                       совпадает что-то из поля personal - 0.5 балла за каждое совпадение.
-                       Так же добавляется поле params. В нем содержится за что баллы были зачислены и какие слова совпадают
-                    """
+        """ 
+        В этом цикле в словаре с информацией о ползователе добавляется поле compatibility. Это очки совпадения.
+        1 общий друг - балл, 1 слово из описания страницы совпадает - 0.2 балла, совпадает что-то из поля personal - 
+        0.5 балла за каждое совпадение. Так же добавляется поле params. В нем содержится за что баллы были зачислены 
+        и какие слова совпадают
+        """
         for people in peoples:
             people['compatibility'] = 0
             people['params'] = {'word_points': 0, 'person_points': 0, 'words': []}
 
-            """В этом цикле я ищу совпадения слов со страницы. беру одно поле, проверяю, что оно есть
-               и у пользователя и у человека, которого мы нашли. Затем убираю из строк все, кроме букв, цифр и пробелов.
-               Разбиваю строки по пробелу, ищу совпадения. Если совпадение обнаруживается, добавляю 0.2 балла к очкам совместимости
+            """
+            В этом цикле я ищу совпадения слов со страницы. беру одно поле, проверяю, что оно есть
+            и у пользователя и у человека, которого мы нашли. Затем убираю из строк все, кроме букв, цифр и пробелов.
+            Разбиваю строки по пробелу, ищу совпадения. Если совпадение обнаруживается, добавляю 0.2 балла к очкам совместимости
             """
             for param in params[:-2]:
                 if param in people:
@@ -71,20 +72,24 @@ class Main():
 
     def search_peoples(self, user):
         # возвращает список всех возможных людей, которые мне подходят
-        people_list = list() # множество со всеми людьми. Повторов там не будет
+        people_list = list()  # множество со всеми людьми. Повторов там не будет
         for i, group in enumerate(user.user['groups']):
             # запрашиваем список людей, которые подходят по начальным параметрам и находятся в определенной группе groups
             peoples = user.vk.users.search(count=1000, fields=['about', 'activities', 'books', 'common_count',
-                                                                  'domain', 'games', 'home_town', 'interest', 'movies', 'music', 'personal',
-                                                                  'photo_max_orig', 'quotes', 'sex', 'status', 'tv'],
-                                           city=user.user['city']['id'], country=user.user['country']['id'], sex=user.user['search_sex'],
-                                           status=6, age_from=round(user.user['age'] * 0.9), age_to=round(user.user['age'] * 1.1),
+                                                               'domain', 'games', 'home_town', 'interest', 'movies',
+                                                               'music', 'personal',
+                                                               'photo_max_orig', 'quotes', 'sex', 'status', 'tv'],
+                                           city=user.user['city']['id'], country=user.user['country']['id'],
+                                           sex=user.user['search_sex'],
+                                           status=6, age_from=round(user.user['age'] * 0.9),
+                                           age_to=round(user.user['age'] * 1.1),
                                            has_photo=1, group_id=group['id'])['items']
 
             people_list.extend(peoples)
             print(i)
-        peoples = [el for el, _ in groupby(people_list)] # убирем повторы. Хотел сделать с множествами, но они не поддерживают словари
-        return peoples # возвращаем список
+        peoples = [el for el, _ in
+                   groupby(people_list)]  # убирем повторы. Хотел сделать с множествами, но они не поддерживают словари
+        return peoples  # возвращаем список
 
     def get_top3_photo(self, people, user):
         photos = user.vk.photos.getAll(ownet_id=people['id'], count=200, extended=1)['items']
@@ -97,21 +102,21 @@ class Main():
         return top_photos
 
 
-
-class User():
+class User:
 
     def __init__(self, login, password, id):
         vk_session = vk_api.VkApi(login, password)
         vk_session.auth(token_only=True)
         self.vk = vk_session.get_api()
         self.id = id
-        self.user = self.vk.users.get(user_ids=id, fields=['about', 'activities', 'bdate', 'books', 'common_count', 'country', 'city',
-                                                              'domain''games', 'home_town', 'interest', 'movies', 'music', 'personal',
-                                                              'photo_max_orig', 'quotes', 'sex', 'status', 'tv'])[0]
+        self.user = self.vk.users.get(user_ids=id,
+                                      fields=['about', 'activities', 'bdate', 'books', 'common_count', 'country',
+                                              'city',
+                                              'domain''games', 'home_town', 'interest', 'movies', 'music', 'personal',
+                                              'photo_max_orig', 'quotes', 'sex', 'status', 'tv'])[0]
         self.user['age'] = self.get_age(self.user)
         self.user['groups'] = self.get_groups(self.user)
         self.user['search_sex'] = self.get_seatch_sex(self.user)
-
 
     def get_age(self, user):
         if not isinstance(user, dict):
@@ -145,20 +150,20 @@ class User():
 
         return search_sex
 
+
 if __name__ == '__main__':
     conn = sqlite3.connect("VkDataBase.db")
     cursor = conn.cursor()
-    cursor.execute("""CREATE TABLE VK_peoplesf
+    cursor.execute("""CREATE TABLE vk_peoples
                       (page text, photo1 text, photo2 text,
                        photo3 text)
                    """)
     conn.commit()
 
-
     login = input("Ввеите логин")
     password = input("Введите пароль: ")
-    id = int(input("Введите свой id"))
-    user = User(login, password, id)
+    my_id = int(input("Введите свой id"))
+    user = User(login, password, my_id)
     main = Main(user)
     peoples = main.search_peoples(user)
     peoples = main.add_compatibility_points(user, peoples)
@@ -169,9 +174,10 @@ if __name__ == '__main__':
         top_peoples = []
         for people in peoples[start_people:end_people]:
             photos = main.get_top3_photo(people, user)
-            top_peoples.append((f"https://vk.com/id{people['id']}", photos[0]["photo"], photos[1]["photo"], photos[2]["photo"]))
+            top_peoples.append(
+                (f"https://vk.com/id{people['id']}", photos[0]["photo"], photos[1]["photo"], photos[2]["photo"]))
 
-        cursor.executemany("INSERT INTO albums VALUES (?,?,?,?)", top_peoples)
+        cursor.executemany("INSERT INTO vk_peoples VALUES (?,?,?,?)", top_peoples)
         conn.commit()
         start_people += 10
         end_people += 10
