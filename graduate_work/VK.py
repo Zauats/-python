@@ -17,7 +17,7 @@ class Main:
     def add_compatibility_points(self, user, peoples):
         # все возможные параметры для сравнивания:
         all_params = ['about', 'activities', 'books', 'games', 'movies', 'music', 'quotes', 'status', 'tv',
-                      'common_count', 'personal',]
+                      'common_count', 'personal']
         # параметры, которые есть в поле personal:
         personal = ['political', 'people_main', 'life_main', 'smoking', 'alcohol', 'religion']
 
@@ -41,7 +41,7 @@ class Main:
             """
             В этом цикле я ищу совпадения слов со страницы. беру одно поле, проверяю, что оно есть
             и у пользователя и у человека, которого мы нашли. Затем убираю из строк все, кроме букв, цифр и пробелов.
-            Разбиваю строки по пробелу, ищу совпадения. Если совпадение обнаруживается, добавляю 0.2 балла к очкам совместимости
+            Разбиваю строки по пробелу, ищу совпадения. Если есть совпадение , добавляю 0.2 балла к очкам совместимости
             """
             for param in params[:-2]:
                 if param in people:
@@ -73,22 +73,32 @@ class Main:
     def search_peoples(self, user):
         # возвращает список всех возможных людей, которые мне подходят
         people_list = list()  # множество со всеми людьми. Повторов там не будет
+        fields = ['about', 'activities', 'books', 'common_count', 'domain', 'games', 'home_town', 'interest', 'movies',
+                  'music', 'personal', 'photo_max_orig', 'quotes', 'sex', 'status', 'tv']
         for i, group in enumerate(user.user['groups']):
-            # запрашиваем список людей, которые подходят по начальным параметрам и находятся в определенной группе groups
-            peoples = user.vk.users.search(count=1000, fields=['about', 'activities', 'books', 'common_count',
-                                                               'domain', 'games', 'home_town', 'interest', 'movies',
-                                                               'music', 'personal',
-                                                               'photo_max_orig', 'quotes', 'sex', 'status', 'tv'],
-                                           city=user.user['city']['id'], country=user.user['country']['id'],
-                                           sex=user.user['search_sex'],
-                                           status=6, age_from=round(user.user['age'] * 0.9),
-                                           age_to=round(user.user['age'] * 1.1),
-                                           has_photo=1, group_id=group['id'])['items']
-
-            people_list.extend(peoples)
+            # запрашиваем список людей, которые подходят по начальным параметрам и находятся в определенной группе
+            try:
+                # поиск по группам
+                people_list.extend(user.vk.users.search(count=1000, fields=fields,
+                                                        city=user.user['city']['id'], sex=user.user['search_sex'],
+                                                        country=user.user['country']['id'],
+                                                        status=6, age_from=round(user.user['age'] * 0.9),
+                                                        age_to=round(user.user['age'] * 1.1),
+                                                        has_photo=1, group_id=group['id'])['items']) 
+            except:
+                print('Что-то пошло не так((')
             print(i)
-        peoples = [el for el, _ in
-                   groupby(people_list)]  # убирем повторы. Хотел сделать с множествами, но они не поддерживают словари
+        try:
+            # поиск по глобальному поиску
+            people_list.extend(user.vk.users.search(count=1000, fields=fields,
+                                                    city=user.user['city']['id'], country=user.user['country']['id'],
+                                                    sex=user.user['search_sex'],
+                                                    status=6, age_from=round(user.user['age'] * 0.9),
+                                                    age_to=round(user.user['age'] * 1.1), has_photo=1,)['items']) 
+            
+        except:
+            print("что-то пошло не так((")
+        peoples = [el for el, _ in groupby(people_list)]  # убирем повторы.
         return peoples  # возвращаем список
 
     def get_top3_photo(self, people, user):
@@ -110,13 +120,19 @@ class User:
         self.vk = vk_session.get_api()
         self.id = id
         self.user = self.vk.users.get(user_ids=id,
-                                      fields=['about', 'activities', 'bdate', 'books', 'common_count', 'country',
-                                              'city',
+                                      fields=['about', 'activities', 'bdate', 'books', 'common_count', 'country', 'city',
                                               'domain''games', 'home_town', 'interest', 'movies', 'music', 'personal',
                                               'photo_max_orig', 'quotes', 'sex', 'status', 'tv'])[0]
         self.user['age'] = self.get_age(self.user)
         self.user['groups'] = self.get_groups(self.user)
         self.user['search_sex'] = self.get_seatch_sex(self.user)
+        self.user['city'] = self.get_city(self.user)
+
+    def get_city(self, user):
+        if 'city' not in user:
+            return {'id': input('введите id своего города')}
+        else:
+            return user['city']
 
     def get_age(self, user):
         if not isinstance(user, dict):
@@ -154,19 +170,25 @@ class User:
 if __name__ == '__main__':
     conn = sqlite3.connect("VkDataBase.db")
     cursor = conn.cursor()
-    cursor.execute("""CREATE TABLE vk_peoples
-                      (page text, photo1 text, photo2 text,
-                       photo3 text)
-                   """)
-    conn.commit()
+    try:
+        cursor.execute("""CREATE TABLE vk_peoples
+                          (page text, photo1 text, photo2 text,
+                           photo3 text)
+                       """)
+        conn.commit()
+    except:
+        print('первый запуск уже был')
 
-    login = input("Ввеите логин")
+    login = input("Ввеите логин: ")
     password = input("Введите пароль: ")
-    my_id = int(input("Введите свой id"))
+    my_id = int(input("Введите свой id: "))
     user = User(login, password, my_id)
+    print(user.user)
     main = Main(user)
     peoples = main.search_peoples(user)
+    print(len(peoples))
     peoples = main.add_compatibility_points(user, peoples)
+    print(len(peoples))
     peoples.reverse()
     start_people = 0
     end_people = 10
