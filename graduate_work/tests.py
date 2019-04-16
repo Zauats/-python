@@ -9,22 +9,20 @@ class UserTests(unittest.TestCase):
             'first_name': 'Александр',
             'id': 187509567,
             'last_name': 'Зайцев',
-            'sex': 2, }
+            'sex': 2,
+            'city': {'id': 1}}
 
-    def test_user_class(self):
-        self.assertIsInstance(self.user, dict)
+
+    def test_get_sity(self):
+        self.assertIsInstance(User.get_city(self.user), dict)
+        self.assertIsInstance(User.get_city(self.user)['id'], int)
+        self.assertGreater(User.get_city(self.user)['id'], 0)
 
     def test_get_age(self):
         self.assertRaises(ValueError, User.get_age, 'строка')
         self.assertRaises(ValueError, User.get_age, 12345)
         self.assertRaises(ValueError, User.get_age, [1, 2, 'строка'])
         self.assertGreater(User.get_age(self.user), 0)
-
-    def test_get_groups(self):
-        self.assertRaises(ValueError, User.get_groups, 'строка')
-        self.assertRaises(ValueError, User.get_groups, 12345)
-        self.assertRaises(ValueError, User.get_groups, [1, 2, 'строка'])
-        self.assertIsInstance(User.get_groups(self.user), list)
 
     def test_get_seatch_sex(self):
         self.assertIsInstance(User.get_seatch_sex(self.user), int)
