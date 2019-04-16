@@ -84,7 +84,7 @@ class Main:
                                                         country=user.user['country']['id'],
                                                         status=6, age_from=round(user.user['age'] * 0.9),
                                                         age_to=round(user.user['age'] * 1.1),
-                                                        has_photo=1, group_id=group['id'])['items']) 
+                                                        has_photo=1, group_id=group['id'])['items'])
             except:
                 print('Что-то пошло не так((')
             print(i)
@@ -94,8 +94,8 @@ class Main:
                                                     city=user.user['city']['id'], country=user.user['country']['id'],
                                                     sex=user.user['search_sex'],
                                                     status=6, age_from=round(user.user['age'] * 0.9),
-                                                    age_to=round(user.user['age'] * 1.1), has_photo=1,)['items']) 
-            
+                                                    age_to=round(user.user['age'] * 1.1), has_photo=1,)['items'])
+
         except:
             print("что-то пошло не так((")
         peoples = [el for el, _ in groupby(people_list)]  # убирем повторы.
@@ -128,13 +128,15 @@ class User:
         self.user['search_sex'] = self.get_seatch_sex(self.user)
         self.user['city'] = self.get_city(self.user)
 
-    def get_city(self, user):
+    @staticmethod
+    def get_city(user):
         if 'city' not in user:
-            return {'id': input('введите id своего города')}
+            return {'id': int(input('введите id своего города'))}
         else:
             return user['city']
 
-    def get_age(self, user):
+    @staticmethod
+    def get_age(user):
         if not isinstance(user, dict):
             raise ValueError("user должен быть класса dict")
 
@@ -148,6 +150,7 @@ class User:
             age = int(input('Дата отсутствует. введите свой возраст'))
         return age
 
+
     def get_groups(self, user):
         if not isinstance(user, dict):
             raise ValueError("user должен быть класса dict")
@@ -155,7 +158,8 @@ class User:
         groups = self.vk.groups.get(user_id=self.id, extended=1, fields=['id', 'screen_name', 'members_count'])['items']
         return groups
 
-    def get_seatch_sex(self, user):
+    @staticmethod
+    def get_seatch_sex(user):
         if user['sex'] == 1:
             search_sex = 2
         elif user['sex'] == 2:
@@ -183,12 +187,9 @@ if __name__ == '__main__':
     password = input("Введите пароль: ")
     my_id = int(input("Введите свой id: "))
     user = User(login, password, my_id)
-    print(user.user)
     main = Main(user)
     peoples = main.search_peoples(user)
-    print(len(peoples))
     peoples = main.add_compatibility_points(user, peoples)
-    print(len(peoples))
     peoples.reverse()
     start_people = 0
     end_people = 10
