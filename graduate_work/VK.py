@@ -86,7 +86,7 @@ class Main:
                                                         status=6, age_from=round(user.user['age'] * 0.9),
                                                         age_to=round(user.user['age'] * 1.1),
                                                         has_photo=1, group_id=group['id'])['items'])
-            except:
+            except KeyError:
                 print('Что-то пошло не так((')
             print(i)
         try:
@@ -97,7 +97,7 @@ class Main:
                                                     status=6, age_from=round(user.user['age'] * 0.9),
                                                     age_to=round(user.user['age'] * 1.1), has_photo=1,)['items'])
 
-        except:
+        except KeyError:
             print("что-то пошло не так((")
         peoples = [el for el, _ in groupby(people_list)]  # убирем повторы.
         return peoples  # возвращаем список
@@ -151,7 +151,6 @@ class User:
             age = int(input('Дата отсутствует. введите свой возраст'))
         return age
 
-
     def get_groups(self, user):
         if not isinstance(user, dict):
             raise ValueError("user должен быть класса dict")
@@ -181,7 +180,7 @@ if __name__ == '__main__':
                            photo3 text)
                        """)
         conn.commit()
-    except:
+    except sqlite3.OperationalError:
         print('первый запуск уже был')
 
     login = input("Ввеите логин: ")
@@ -198,13 +197,12 @@ if __name__ == '__main__':
     try:
         with open('peoples.json', 'r', encoding='UTF-8') as f:
             peoples_json = json.loads(f)
-    except:
+    except TypeError:
         peoples_json = []
-
 
     for people in peoples_json:
         if people in peoples:
-            peoples.remove(people) # удаляем из списка всех людей, которые уже были
+            peoples.remove(people)  # удаляем из списка всех людей, которые уже были
 
     while True:
         top_peoples = []
@@ -213,7 +211,6 @@ if __name__ == '__main__':
             photos = main.get_top3_photo(people, user)
             top_peoples.append(
                 (f"https://vk.com/id{people['id']}", photos[0]["photo"], photos[1]["photo"], photos[2]["photo"]))
-
 
         cursor.executemany("INSERT INTO vk_peoples VALUES (?,?,?,?)", top_peoples)
         conn.commit()
