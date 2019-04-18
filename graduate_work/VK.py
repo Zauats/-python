@@ -3,6 +3,7 @@ import vk_api
 import re
 from itertools import groupby
 import sqlite3
+import json
 
 
 class Main:
@@ -193,17 +194,34 @@ if __name__ == '__main__':
     peoples.reverse()
     start_people = 0
     end_people = 10
+
+    try:
+        with open('peoples.json', 'r', encoding='UTF-8') as f:
+            peoples_json = json.loads(f)
+    except:
+        peoples_json = []
+
+
+    for people in peoples_json:
+        if people in peoples:
+            peoples.remove(people) # удаляем из списка всех людей, которые уже были
+
     while True:
         top_peoples = []
         for people in peoples[start_people:end_people]:
+            peoples_json.append(people)
             photos = main.get_top3_photo(people, user)
             top_peoples.append(
                 (f"https://vk.com/id{people['id']}", photos[0]["photo"], photos[1]["photo"], photos[2]["photo"]))
+
 
         cursor.executemany("INSERT INTO vk_peoples VALUES (?,?,?,?)", top_peoples)
         conn.commit()
         start_people += 10
         end_people += 10
         print('данные переданы в базу данных')
+
         if input('Хотите найти еще людей? Для продолжения нажмите Enter, для завершения введите "end": ') == 'end':
+            with open('peoples.json', 'w', encoding='UTF-8') as f:
+                json.dump(peoples_json, f)
             break
