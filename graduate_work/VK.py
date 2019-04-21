@@ -3,7 +3,6 @@ import vk_api
 import re
 from itertools import groupby
 import sqlite3
-import json
 
 
 class Main:
@@ -36,6 +35,7 @@ class Main:
         и какие слова совпадают
         """
         for people in peoples:
+
             people['compatibility'] = 0
             people['params'] = {'word_points': 0, 'person_points': 0, 'words': []}
 
@@ -65,8 +65,7 @@ class Main:
                         if people['personal'][param] == user.user['personal'][param]:
                             people['compatibility'] += 0.5
                             people['params']['person_points'] += 0.5
-
-        # сортирую список по очкам совместимости
+            # сортирую список по очкам совместимости
 
         peoples.sort(key=lambda peoples: peoples['compatibility'])
         return peoples
@@ -174,6 +173,7 @@ class User:
 if __name__ == '__main__':
     conn = sqlite3.connect("VkDataBase.db")
     cursor = conn.cursor()
+
     try:
         cursor.execute("""CREATE TABLE vk_peoples
                           (page text, photo1 text, photo2 text,
@@ -181,7 +181,13 @@ if __name__ == '__main__':
                        """)
         conn.commit()
     except sqlite3.OperationalError:
-        print('первый запуск уже был')
+        with conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM vk_peoples")
+            rows = cur.fetchall()
+            found_peoples = []
+            for row in rows:
+                found_peoples.append(int(row[0][17:]))
 
     login = input("Ввеите логин: ")
     password = input("Введите пароль: ")
@@ -191,23 +197,16 @@ if __name__ == '__main__':
     peoples = main.search_peoples(user)
     peoples = main.add_compatibility_points(user, peoples)
     peoples.reverse()
+
+    for people in list(peoples):
+        if people['id'] in found_peoples:
+            peoples.remove(people)
+
     start_people = 0
     end_people = 10
-
-    try:
-        with open('peoples.json', 'r', encoding='UTF-8') as f:
-            peoples_json = json.loads(f)
-    except TypeError:
-        peoples_json = []
-
-    for people in peoples_json:
-        if people in peoples:
-            peoples.remove(people)  # удаляем из списка всех людей, которые уже были
-
     while True:
         top_peoples = []
         for people in peoples[start_people:end_people]:
-            peoples_json.append(people)
             photos = main.get_top3_photo(people, user)
             top_peoples.append(
                 (f"https://vk.com/id{people['id']}", photos[0]["photo"], photos[1]["photo"], photos[2]["photo"]))
@@ -219,6 +218,4 @@ if __name__ == '__main__':
         print('данные переданы в базу данных')
 
         if input('Хотите найти еще людей? Для продолжения нажмите Enter, для завершения введите "end": ') == 'end':
-            with open('peoples.json', 'w', encoding='UTF-8') as f:
-                json.dump(peoples_json, f)
             break
