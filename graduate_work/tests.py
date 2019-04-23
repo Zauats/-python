@@ -1,7 +1,8 @@
 from VK import User
-import unittest
+from unittest import TestCase, main
+from unittest.mock import patch, Mock
 
-class UserTests(unittest.TestCase):
+class UserTests(TestCase):
 
     def setUp(self):
         self.user = {
@@ -29,7 +30,44 @@ class UserTests(unittest.TestCase):
         self.assertGreater(User.get_seatch_sex(self.user), -1)
         self.assertLess(User.get_seatch_sex(self.user), 3)
 
+class TestBlog(TestCase):
+    @patch('VK.Main')
+    def test_search_peoples(self, mock_peoples):
+        peoples = mock_peoples()
+
+        peoples.search_peoples.return_value = [
+            {
+                "id":242444423,
+                'about': "очень интересно",
+                'books': 'инфа'
+            }
+        ]
+
+        response = peoples.search_peoples()
+        self.assertIsNotNone(response)
+        self.assertIsInstance(response[0], dict)
+        self.assertIsInstance(response, list)
+
+    @patch('VK.Main')
+    def test_get_top3_photo(self, mock_photos):
+        photos = mock_photos()
+
+        photos.get_top3_photo.return_value = [
+            {
+                'photo': "photoUrl",
+                'likes': 123
+            }
+        ]
+
+
+        response = photos.get_top3_photo()
+        self.assertIsNotNone(response)
+        self.assertIsInstance(response[0], dict)
+        self.assertIsInstance(response, list)
+        self.assertIsInstance(response[0]['photo'], str)
+        
+
 if __name__ == "__main__":
-    unittest.main()
+    main()
 
 
