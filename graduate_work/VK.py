@@ -173,7 +173,7 @@ class User:
 if __name__ == '__main__':
     conn = sqlite3.connect("VkDataBase.db")
     cursor = conn.cursor()
-
+    found_peoples = []
     try:
         cursor.execute("""CREATE TABLE vk_peoples
                           (page text, photo1 text, photo2 text,
@@ -185,7 +185,6 @@ if __name__ == '__main__':
             cur = conn.cursor()
             cur.execute("SELECT * FROM vk_peoples")
             rows = cur.fetchall()
-            found_peoples = []
             for row in rows:
                 found_peoples.append(int(row[0][17:]))
 
