@@ -28,10 +28,10 @@ class Main:
             if param in user.user:
                 params.append(param)
 
-        """ 
+        """
         В этом цикле в словаре с информацией о ползователе добавляется поле compatibility. Это очки совпадения.
-        1 общий друг - балл, 1 слово из описания страницы совпадает - 0.2 балла, совпадает что-то из поля personal - 
-        0.5 балла за каждое совпадение. Так же добавляется поле params. В нем содержится за что баллы были зачислены 
+        1 общий друг - балл, 1 слово из описания страницы совпадает - 0.2 балла, совпадает что-то из поля personal -
+        0.5 балла за каждое совпадение. Так же добавляется поле params. В нем содержится за что баллы были зачислены
         и какие слова совпадают
         """
         for people in peoples:
@@ -120,9 +120,9 @@ class User:
         self.vk = vk_session.get_api()
         self.id = id
         self.user = self.vk.users.get(user_ids=id,
-                                      fields=['about', 'activities', 'bdate', 'books', 'common_count', 'country', 'city',
-                                              'domain''games', 'home_town', 'interest', 'movies', 'music', 'personal',
-                                              'photo_max_orig', 'quotes', 'sex', 'status', 'tv'])[0]
+                                      fields=['about', 'activities', 'bdate', 'books', 'common_count', 'country', 
+                                              'city', 'domain''games', 'home_town', 'interest', 'movies', 'music', 
+                                              'personal', 'photo_max_orig', 'quotes', 'sex', 'status', 'tv'])[0]
         self.user['age'] = self.get_age(self.user)
         self.user['groups'] = self.get_groups(self.user)
         self.user['search_sex'] = self.get_seatch_sex(self.user)
@@ -154,7 +154,8 @@ class User:
         if not isinstance(user, dict):
             raise ValueError("user должен быть класса dict")
 
-        groups = self.vk.groups.get(user_id=self.id, extended=1, fields=['id', 'screen_name', 'members_count'])['items']
+        groups = self.vk.groups.get(user_id=self.id, extended=1, 
+                                    fields=['id', 'screen_name', 'members_count'])['items']
         return groups
 
     @staticmethod
