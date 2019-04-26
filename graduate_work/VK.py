@@ -46,8 +46,8 @@ class Main:
             """
             for param in params[:-2]:
                 if param in people:
-                    people_str = re.sub('[^\w\d\s]', '', people[param]).split(' ')
-                    user_str = re.sub('[^\w\d\s]', '', user.user[param]).split(' ')
+                    people_str = re.sub(r'[^\w\d\s]', '', people[param]).split(' ')
+                    user_str = re.sub(r'[^\w\d\s]', '', user.user[param]).split(' ')
                     for word in user_str:
                         if (word in people_str) and (word != ''):
                             people['params']['words'].append(word)
