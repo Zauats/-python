@@ -69,5 +69,3 @@ class TestBlog(TestCase):
 
 if __name__ == "__main__":
     main()
-
-
