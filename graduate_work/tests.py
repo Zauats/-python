@@ -1,6 +1,6 @@
 from VK import User
 from unittest import TestCase, main
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 class UserTests(TestCase):
 
